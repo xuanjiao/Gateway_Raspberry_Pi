@@ -1,4 +1,5 @@
--- create database if not exists light_db;
+create database if not exists light_db character set utf8 collate utf8_general_ci;
+use light_db;
 drop table if exists light_list;
 create table light_list(
 	light int,
@@ -28,6 +29,6 @@ end $$
 delimiter ;
 
 -- create raw data with datetime and light value, store it in light list.
-call createRawData('2020-01-20 07:23:40','00:20:00',255,500);
+call createRawData('2020-01-20 07:23:40','00:10:00',255,500);
 
 select * from light_list;
