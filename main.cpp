@@ -50,8 +50,20 @@ struct hci_state open_default_hci_device()
 
 }
 
-void start_hci_scan(){
-   if(hci_le_set_scan_parameters())
+void start_hci_scan(struct hci_state current_hci_state){
+    if(hci_le_set_scan_parameters(
+            current_hci_state.device_handle,
+            0x01,
+            htobs(0x0010),
+            htobs(0x0010),
+            0x00,
+            0x00,
+            1000)<0)
+            {
+                current_hci_state.has_error = 1;
+                snprintf(current_hci_state.error_message,sizeof(current_hci_state.error_message),"Failed to set scan parameters: %s\n",strerror(errno));
+                return;
+            }
 
     // Time out 1000ms
     if(hci_le_set_scan_enable(current_hci_state.device_handle,0x01,1,1000)<0)
@@ -62,15 +74,86 @@ void start_hci_scan(){
     }
     current_hci_state.state = HCI_STATE_SCANNING;
 
+    // Save the current HCI filter
+    socklen_t olen = sizeof(current_hci_state.original_filter);
+
+    // Get socket option and store in original_filter
+    if(getsockopt(current_hci_state.device_handle,SOL_HCI,HCI_FILTER, &current_hci_state.original_filter, &olen)<0)
+    {
+        current_hci_state.has_error = 1;
+        snprintf(current_hci_state.error_message,sizeof(current_hci_state.error_message),"Failed to get socket options: %s\n",strerror(errno));
+        return;
+    }
+
+    // Creat and set new filter
+    struct hci_filter new_filter;
+
+    hci_filter_clear(&new_filter);
+    hci_filter_set_ptype(HCI_EVENT_PKT,&new_filter);
+    hci_filter_set_event(EVT_LE_META_EVENT,&new_filter);
+
+    if(setsockopt(current_hci_state.device_handle,SOL_HCI,HCI_FILTER,&new_filter,sizeof(new_filter)) < 0)
+    {
+        current_hci_state.has_error = 1;
+        snprintf(current_hci_state.error_message,sizeof(current_hci_state.error_message),"Failed to set socket option: %s\n",strerror(errno));
+        return;
+    }
+       
+    current_hci_state.state = HCI_STATE_FILTERING;
+}
+
+void stop_hci_scan(struct hci_state current_hci_state)
+{
+    if(current_hci_state.state == HCI_STATE_FILTERING)
+    {
+        current_hci_state.state = HCI_STATE_SCANNING;
+        setsockopt(current_hci_state.device_handle,SOL_HCI,HCI_FILTER,&current_hci_state.original_filter,sizeof(current_hci_state.original_filter));
+    }
+
+    if(hci_le_set_scan_enable(current_hci_state.device_handle,0x00,1,1000)<0)
+    {
+        current_hci_state.has_error = 1;
+        snprintf(current_hci_state.error_message,sizeof(current_hci_state.error_message),"Failed to disable scan: %s\n",strerror(errno));
+    }
+
+    current_hci_state.state = HCI_STATE_OPEN;
+}
+
+void close_hci_device(struct hci_state current_hci_state){
+    if(current_hci_state.state == HCI_STATE_OPEN){
+        hci_close_dev(current_hci_state.device_handle);
+    }
+}
+
+void error_check_and_exit(struct hci_state current_hci_state)
+{
+    if(current_hci_state.has_error)
+    {
+        printf("ERROR: %s\n",current_hci_state.error_message);
+        exit(1);
+    }
 }
 
 int main(int argc, char** argv)
 {
     current_hci_state = open_default_hci_device();
-
-
-
     
+    error_check_and_exit(current_hci_state);
+
+    stop_hci_scan(current_hci_state);
+
+    start_hci_scan(current_hci_state);
+
+    error_check_and_exit(current_hci_state);
+
+    printf("Scanning\n");
+
+
+    stop_hci_scan(current_hci_state);
+
+    error_check_and_exit(current_hci_state);
+
+    close_hci_device(current_hci_state);
     
 
     return 0;
