@@ -7,7 +7,7 @@ gcc -o simplescan main.cpp -lbluetooth
 
 Finished:
 
-I try to install sql server on raspberry pi but failed..will try it later
+I try to install mysql server on raspberry pi but failed..will try it later
 
 
 1. (on Ubuntu 16.04 on PC)install and set up mysql database
@@ -15,7 +15,7 @@ I try to install sql server on raspberry pi but failed..will try it later
 
     ```
     sudo apt-get update
-    sudo apt-get install sql-server
+    sudo apt-get install mysql-server
     ```
     2. start mysql service, set it launch at reboot
     ```
