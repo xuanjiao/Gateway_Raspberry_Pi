@@ -63,7 +63,7 @@ Finished:
 
     result is:
 
-    ![gatt_]
+    ![read_light_value](./images/screenshot_read_light_value.png)
 
     To Do:
 
