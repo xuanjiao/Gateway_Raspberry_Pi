@@ -47,6 +47,7 @@ Finished:
     mysql> source ~/ble_gateway/sql/printLightValuesInTimeslot.sql;
     ```
     result is:
+
     ![print_light_value](./images/screenshot_print_light_value_in_timeslot.png)
 
     7. write sql script `calculateLightOnPercent.sql`, which calculate light on possibility for timeslots.
@@ -55,12 +56,16 @@ Finished:
     mysql> source ~/ble_gateway/sql/calculateLightOnPercent.sql;
     ```
     result is:
+
     ![light_on_percentage](./images/screenshot_calculateLightOnPercent.png)
 
+    2. implement ble gatt client class which can connect to ble gatt server(develop board), and read light value.
+
+    result is:
+
+    ![gatt_]
 
     To Do:
-
-    1. implement ble gatt client class which can connect to ble gatt server(develop board), and read light value
 
     2. add functions to acess mysql database
 
