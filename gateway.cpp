@@ -5,17 +5,27 @@
 
 int main()
 {
-	/*
+
     BLEProcess ble_process;
 
     if(ble_process.start_scan())
+    {
+        printf("Scan completed\n");
+        if(ble_process.stop_scan())
+	{
+		printf("Scan stoped\n");
+	}	
+    }
+/*
+    BLEProcess ble_process;
+    if(ble_process.start_scan_with_filter())
     {
         printf("Scan completed\n");
         ble_process.stop_scan();
     }
 */
 
-    GATTClient gatt_client;
+  /*  GATTClient gatt_client;
     if(gatt_client.connect())
     {
         // gatt_client.discover_services();
@@ -24,5 +34,6 @@ int main()
         gatt_client.disconnect();
         printf("disconnected");
     }
-    
+    */
+
 }

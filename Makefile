@@ -1,9 +1,11 @@
 # Use g++ compiler
 CC = g++
 
-HEADER = ble/ble_process.h ble/gatt_client.h
-SOURCES = main.cpp
-EXECUTEBLE = simplescan
+HEADER = ble/ble_process.h  ble/gatt_client.h
+
+# We change .c to exec file by remove '.c'
+SOURCE = $(wildcard *.cpp)
+TARGETS = $(patsubst %.cpp,%,$(SOURCE))
 
 # print warnings
 CFLAGS = -Wall -Ible
@@ -14,17 +16,15 @@ ODIR = build
 # Link with thread lib and gattlib
 USER_LIBS = -lgattlib -lpthread
 
-OBJECTS = simplescan.cpp.o
 
-all: $(EXECUTEBLE)
+all: $(TARGETS)
 
-# -c(generate .o file) -o(generate output file) @(left side of:) <(first right side of :)
-$(OBJECTS): $(SOURCES) $(HEADER)
-	$(CC) $(CFLAGS) -c $< -o $(ODIR)/$@ $(USER_LIBS)
+# %:%.cpp (e.g. app1: app1.c)
+# @(left side of:) <(first right side of :)
+$(TARGETS):%:%.cpp $(HEADER)
+	$(CC) $< $(CFLAGS) -o $@ $(USER_LIBS) 
 
-# ^(all right side of :)
-$(EXECUTEBLE) : $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $(ODIR)/$^ $(USER_LIBS)
 
 clean:
-	-rm -f $(OBJECTS)
+	-rm -rf $(TARGETS)
+

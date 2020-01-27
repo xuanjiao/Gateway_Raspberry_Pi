@@ -4,19 +4,19 @@
 #include "gattlib.h"
 #include <stdio.h>
 #include <string.h>
-
+#include "ble_config.h"
 
 class GATTClient{
 private:
     gatt_connection_t* gatt_connection = NULL;
     gattlib_primary_service_t* services = NULL;
     gattlib_characteristic_t* characteristics = NULL;
-    char target[20];
+    char target[MAX_LEN_UUID_STR + 1];
    uuid_t light_uuid;
 public:
     bool connect()
     {
-	    strcpy(target,"EB:32:5F:E4:7E:5C");
+	    strcpy(target,BLE_PERIPHERAL_ADDRESS);
 	    printf("connecting to %s...\n",target);
 
         gatt_connection = gattlib_connect(NULL,target,GATTLIB_CONNECTION_OPTIONS_LEGACY_DEFAULT);
@@ -109,7 +109,7 @@ public:
 	
 	    printf("read light characterisic completed\n");
 
-        for(int i= 0; i < len; i++)
+        for(int i= 0; i < (int)len; i++)
         {
             printf("%02x",buffer[i]);
         }
