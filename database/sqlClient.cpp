@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <mysql/mysql.h>
 #include <string>
-#include <stdlib>
+#include <stdlib.h>
 
 
 #define USER "root"
@@ -44,7 +44,76 @@ public:
 
    void disconnect()
    {
-	mysql_close(mysql);
+	   mysql_close(mysql);
+   }
+
+   bool print_light_value()
+   {
+      char query[1000] = "";
+      int hour_min = 8, hour_max = 10, n, ret;
+	char day_of_week[] = "Tuesday";
+      unsigned int num_fields;
+      MYSQL_RES *result;
+      MYSQL_ROW row;
+      
+      if( (n = sprintf(query,"select light,date_time,dayname(date_time) as day_name from light_list where HOUR(date_time) >= %d and HOUR(date_time) < %d and dayname(date_time)='%s'",hour_min,hour_max,day_of_week))<0)
+	//if( (n = sprintf(query,"select light,date_time,dayname(date_time) as day_name from light_list",hour_min,hour_max))<0)
+      {
+         printf("Failed to escape string.\n");
+         return false;
+      }
+
+      if( (ret = mysql_query(mysql, query)) != 0)
+      {
+         printf("%s\n",query);
+			printf("Error %u : %s\n",mysql_errno(mysql),mysql_error(mysql));
+			return false;   
+      }
+
+      if( (result = mysql_store_result(mysql)) == NULL)
+      {
+         // No result or error
+         printf("Error %u : %s\n",mysql_errno(mysql),mysql_error(mysql));
+			return false;  
+      }
+
+      printf("result has %llu row, ",mysql_num_rows(result));
+      
+
+      // Get number of columns in a result set.
+      num_fields = mysql_num_fields(result);
+      printf("%d colums\n",num_fields);
+   
+      // sets the filed cursor to the beginning of a row, the beginning of a column
+	//printf("privious row cursor %d\n",mysql_row_seek(result,0));
+      //printf("previous value of cursor %d\n",mysql_field_seek(result,0));
+
+
+	printf("Light |  Date time        | Day of Week\n");
+
+      while((row = mysql_fetch_row(result)))
+      {
+         //printf("find row \n");
+         // Get the lenghts of the colums in the current row.
+         unsigned long *lengths = mysql_fetch_lengths(result);
+         for(int i = 0; i < num_fields;i++){
+ 		//printf("[%.*s]",lengths[i],row[i]);
+		printf("[%4s]",row[i]);
+         }
+         printf("\n");
+      }
+      
+ /*
+      str = std::to_string(hour_min).c_str;
+      end = my_stpcpy(query,"select (light,date_time,dayname(date_time) as day_name from light_list where HOUR(date_time) >= @hour_min and HOUR(date_time) >= ");
+      end += mysql_real_escape_string(mysql,end,sizeof(str));
+      end 
+      if( mysql_query(mysql,"select (light,date_time,dayname(date_time) as day_name from light_list 
+where HOUR(date_time) >= @hour_min and HOUR(date_time) < @hour_max and dayname(date_time) = @day_of_week") != 0)
+      {
+
+      }
+      */
    }
 
 /*
@@ -93,7 +162,8 @@ public:
 int main(){
    SQLClient sql_client;
    sql_client.connect();
-   sql_client.createRawData();
+   //sql_client.createRawData();
+   sql_client.print_light_value();
    sql_client.disconnect();
 
     printf("Disconnected\n");
