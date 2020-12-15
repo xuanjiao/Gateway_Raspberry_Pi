@@ -2,6 +2,8 @@
 
 A gateway that communicate with light sensor modules via BLE, collect light value and calculate the probability of light on.
 
+This project belongs to my old master thesis. It was not finished because during lockdown I was not able to go to the lab. Therefore I have started a new master thesis: [robot scheduling](https://github.com/xuanjiao/Robots_task_scheduling)
+
 # Requirements
 
 [MySQL server](https://dev.mysql.com/downloads/mysql/)
@@ -73,4 +75,5 @@ implement ble gatt client class which can connect to ble gatt server(develop boa
 result is:
 
 ![read_light_value](./images/screenshot_read_light_value.png)
-
+ 
+ TODO: Read BLE characteristic value from light sensor.
